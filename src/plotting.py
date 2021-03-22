@@ -9,14 +9,12 @@ import seaborn as sns
 
 def plot_marginals(
     infd: az.InferenceData,
-    var_name,
+    var_name: str,
     ax: plt.Axes,
     true_values: pd.Series = None,
 ):
-    """Plot marginal ability parameters against true values."""
+    """Plot marginal 10%-90% intervals, with true values if available."""
     qs = infd.posterior[var_name].to_series().unstack().quantile([0.1, 0.9]).T
-    qs["truth"] = true_values
-    qs["truth_in_interval"] = (qs["truth"] < qs[0.9]) & (qs["truth"] > qs[0.1])
     qs = qs.sort_values(0.9)
     y = np.linspace(*ax.get_ylim(), len(qs))
     ax.set_yticks(y)
@@ -25,6 +23,10 @@ def plot_marginals(
         y, qs[0.1], qs[0.9], color="tab:blue", label="90% marginal interval"
     )
     if true_values is not None:
+        qs["truth"] = true_values
+        qs["truth_in_interval"] = (qs["truth"] < qs[0.9]) & (
+            qs["truth"] > qs[0.1]
+        )
         ax.scatter(
             qs["truth"], y, marker="|", color="red", label="True ability"
         )
@@ -32,8 +34,8 @@ def plot_marginals(
     return ax
 
 
-def plot_ppc(infd, scores, ax):
-    """Plot observed vs predicted scores."""
+def plot_ppc(infd: az.InferenceData, scores: pd.DataFrame, ax: plt.Axes):
+    """Plot observed scores vs predictive distributions."""
     ix = scores.sort_values("score").index
     obs_score = scores.sort_values("score")["score"].values
     bins = (
