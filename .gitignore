@@ -2,3 +2,10 @@
 *#*
 *__pycache__*
 *export_tex*
+
+results/*/*.csv
+results/*/*.txt
+results/*/*.json
+results/*/*.ncdf
+results/*/*.pkl
+results/*/*.png
