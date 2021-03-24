@@ -15,27 +15,23 @@ def plot_marginals(
 ):
     """Plot marginal ability parameters against true values."""
     qs = infd.posterior[[var_name]].quantile([0.1, 0.9], dim=("chain", "draw"))
-    qs["truth"] = (("skater_name",), true_values)
-    qs["truth_in_interval"] = (
-        qs["truth"]
-        < qs[var_name].sel(quantile=0.9) & qs["truth"]
-        > qs[var_name].sel(quantile=0.1)
-    )
     qs = qs.sortby(qs[var_name].sel(quantile=0.9))
     y = np.linspace(*ax.get_ylim(), qs.dims["skater_name"])
     ax.set_yticks(y)
-    ax.set_yticklabels(qs.skater_name)
+    ax.set_yticklabels(qs["skater_name"].values)
     ax.hlines(
         y,
         qs[var_name].sel(quantile=0.1),
-        qs.sel(quantile=0.9),
+        qs[var_name].sel(quantile=0.9),
         color="tab:blue",
         label="90% marginal interval",
     )
     if true_values is not None:
-        qs["truth"] = true_values
-        qs["truth_in_interval"] = (qs["truth"] < qs[0.9]) & (
-            qs["truth"] > qs[0.1]
+        qs["truth"] = (("skater_name",), true_values)
+        qs["truth_in_interval"] = (
+            qs["truth"]
+            < qs[var_name].sel(quantile=0.9) & qs["truth"]
+            > qs[var_name].sel(quantile=0.1)
         )
         ax.scatter(
             qs["truth"], y, marker="|", color="red", label="True ability"
