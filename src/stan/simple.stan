@@ -32,7 +32,7 @@ model {
   }
 }
 generated quantities {
-  vector[N_test] yrep;
+  int yrep[N_test];
   vector[N_test] llik;
   for (n in 1:N_test){
     real eta = mu + ability[skater_test[n]];
